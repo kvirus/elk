@@ -1,0 +1,14 @@
+services:
+  filebeat:
+    image: elastic/filebeat:8.12.2
+    container_name: filebeat
+    volumes:
+      - /home/logstst/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - /home/logstst/logs/nginx:/var/log/nginx
+#    depends_on:
+#      - elasticsearch
+    networks:
+      - elastic
+
+networks:
+  elastic:

@@ -1,0 +1,60 @@
+services:
+  nginx:
+    image: nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+#    volumes:
+#      - ./nginx.conf:/etc/nginx/nginx.conf
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - logtest
+
+  logspout:
+    image: gliderlabs/logspout:v3.2.14
+    container_name: logspout
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    #command: syslog://elasticsearch:514
+    command: "syslog://logstash:5044"
+    networks:
+      - logtest
+  
+  logstash:
+    image: logstash:8.17.0
+    container_name: logstash
+    ports:
+      - "5044:5044"  # Порт для приема syslog
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf  # Конфигурация Logstash
+    networks:
+      - logtest
+
+  elasticsearch:
+    image: elasticsearch:8.17.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - logtest
+
+  kibana:
+    image: kibana:8.16.2
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - logtest
+
+networks:
+  logtest:
+    driver: bridge

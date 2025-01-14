@@ -1,0 +1,33 @@
+services:
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  logspout:
+    image: gliderlabs/logspout:v3.2.14
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: syslog://elasticsearch:514
+elasticsearch:8.10.0
+  elasticsearch:
+    image: elasticsearch:8.10.0
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  kibana:
+    image: kibana:8.10.0
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch

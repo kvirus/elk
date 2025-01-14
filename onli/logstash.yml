@@ -1,0 +1,20 @@
+services:
+  logstash:
+    image: logstash:8.17.0
+    container_name: logstash
+    restart: always
+    ports:
+      - "5044:5044"
+      - "9600:9600"
+    environment:
+      - NODE_NAME=logstash
+      - xpack.monitoring.enabled=false
+    volumes:
+      - /home/logstst/logstash/:/usr/share/logstash/pipeline
+#    depends_on:
+#      - elasticsearch
+    networks:
+      - elastic
+
+networks:
+  elastic:
